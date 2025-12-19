@@ -1,0 +1,51 @@
+# =============================================================================
+# Belle House Backend - Development Docker Compose Override
+# =============================================================================
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+version: '3.8'
+
+services:
+  # ---------------------------------------------------------------------------
+  # Django Development Server
+  # ---------------------------------------------------------------------------
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: bellehouse_web_dev
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - DATABASE_URL=postgres://${POSTGRES_USER:-bellehouse}:${POSTGRES_PASSWORD:-bellehouse_dev}@db:5432/${POSTGRES_DB:-bellehouse_db}
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL (Development)
+  # ---------------------------------------------------------------------------
+  db:
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-bellehouse}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-bellehouse_dev}
+      - POSTGRES_DB=${POSTGRES_DB:-bellehouse_db}
+    ports:
+      - "5432:5432"
+
+  # ---------------------------------------------------------------------------
+  # Disable Nginx in Development
+  # ---------------------------------------------------------------------------
+  nginx:
+    profiles:
+      - production
+
+  # ---------------------------------------------------------------------------
+  # Disable Certbot in Development
+  # ---------------------------------------------------------------------------
+  certbot:
+    profiles:
+      - production

@@ -143,6 +143,13 @@ firebase-credentials.json
 # Docker
 docker-compose.override.yml
 
+# Backups
+/backups/
+*.sql.gz
+
+# SSL Certificates
+/certbot/
+
 # OS files
 .DS_Store
 Thumbs.db

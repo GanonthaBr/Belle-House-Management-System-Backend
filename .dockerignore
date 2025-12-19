@@ -1,0 +1,62 @@
+# =============================================================================
+# Belle House Backend - Docker Ignore
+# =============================================================================
+
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Local development
+*.sqlite3
+db.sqlite3
+.env
+.env.local
+.env.*.local
+
+# Documentation
+*.md
+!README.md
+
+# Media and static (built in container)
+media/
+staticfiles/
+
+# Logs
+*.log
+
+# Backups
+backups/
+
+# Certbot (mounted separately)
+certbot/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
