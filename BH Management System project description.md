@@ -764,9 +764,9 @@ docker-compose exec db pg_dump -U $DB_USER $DB_NAME > backup.sql
 - [ ] Add pagination
 
 ### Phase 4: Business Logic
-- [ ] Invoice auto-numbering
-- [ ] Client snapshot on invoice save
-- [ ] Image compression on upload
+- [x] Invoice auto-numbering
+- [x] Client snapshot on invoice save
+- [x] Image compression on upload
 
 ### Phase 5: Notifications
 - [ ] Integrate Firebase FCM
