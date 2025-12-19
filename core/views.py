@@ -4,12 +4,13 @@ Views for Core Authentication API.
 Registration, Login, Password management endpoints.
 """
 
-from rest_framework import generics, status
+from rest_framework import generics, status, serializers as drf_serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
+from drf_spectacular.utils import extend_schema, OpenApiResponse, inline_serializer
 from .serializers import (
     UserRegistrationSerializer, LoginSerializer, UserProfileSerializer,
     ChangePasswordSerializer, PasswordResetRequestSerializer, PasswordResetConfirmSerializer
@@ -57,6 +58,28 @@ class LoginView(APIView):
     """
     permission_classes = [AllowAny]
     
+    @extend_schema(
+        request=LoginSerializer,
+        responses={
+            200: inline_serializer(
+                name='LoginResponse',
+                fields={
+                    'message': drf_serializers.CharField(),
+                    'user': UserProfileSerializer(),
+                    'tokens': inline_serializer(
+                        name='TokenPair',
+                        fields={
+                            'refresh': drf_serializers.CharField(),
+                            'access': drf_serializers.CharField(),
+                        }
+                    ),
+                }
+            ),
+            400: OpenApiResponse(description='Invalid credentials'),
+        },
+        summary="Login with username or email",
+        description="Authenticate with username OR email and password. Returns user profile and JWT tokens.",
+    )
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -101,6 +124,11 @@ class ChangePasswordView(APIView):
     """
     permission_classes = [IsAuthenticated]
     
+    @extend_schema(
+        request=ChangePasswordSerializer,
+        responses={200: inline_serializer(name='ChangePasswordResponse', fields={'message': drf_serializers.CharField()})},
+        summary="Change password",
+    )
     def post(self, request):
         serializer = ChangePasswordSerializer(
             data=request.data,
@@ -124,6 +152,11 @@ class PasswordResetRequestView(APIView):
     """
     permission_classes = [AllowAny]
     
+    @extend_schema(
+        request=PasswordResetRequestSerializer,
+        responses={200: inline_serializer(name='PasswordResetRequestResponse', fields={'message': drf_serializers.CharField()})},
+        summary="Request password reset",
+    )
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -149,6 +182,11 @@ class PasswordResetConfirmView(APIView):
     """
     permission_classes = [AllowAny]
     
+    @extend_schema(
+        request=PasswordResetConfirmSerializer,
+        responses={200: inline_serializer(name='PasswordResetConfirmResponse', fields={'message': drf_serializers.CharField()})},
+        summary="Confirm password reset",
+    )
     def post(self, request):
         serializer = PasswordResetConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -170,6 +208,11 @@ class LogoutView(APIView):
     """
     permission_classes = [IsAuthenticated]
     
+    @extend_schema(
+        request=inline_serializer(name='LogoutRequest', fields={'refresh': drf_serializers.CharField(help_text="Refresh token to blacklist")}),
+        responses={200: inline_serializer(name='LogoutResponse', fields={'message': drf_serializers.CharField()})},
+        summary="Logout and blacklist token",
+    )
     def post(self, request):
         try:
             refresh_token = request.data.get('refresh')
