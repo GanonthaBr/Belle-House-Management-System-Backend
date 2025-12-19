@@ -25,7 +25,7 @@ class InvoiceAdmin(admin.ModelAdmin):
     list_filter = ['status', 'is_deleted', 'issue_date', 'payment_mode']
     search_fields = ['invoice_number', 'client_name', 'subject']
     date_hierarchy = 'issue_date'
-    raw_id_fields = ['project']
+    autocomplete_fields = ['project']
     list_editable = ['status']
     readonly_fields = [
         'invoice_number', 'display_subtotal', 'display_tax_amount',
@@ -66,19 +66,27 @@ class InvoiceAdmin(admin.ModelAdmin):
     
     @admin.display(description="Sous-total")
     def display_subtotal(self, obj):
-        return format_html('<strong>{:,.0f} FCFA</strong>', obj.subtotal)
+        value = float(obj.subtotal or 0)
+        formatted = "{:,.0f}".format(value)
+        return format_html('<strong>{} FCFA</strong>', formatted)
     
     @admin.display(description="TVA")
     def display_tax_amount(self, obj):
-        return format_html('{:,.0f} FCFA', obj.tax_amount)
+        value = float(obj.tax_amount or 0)
+        formatted = "{:,.0f}".format(value)
+        return format_html('{} FCFA', formatted)
     
     @admin.display(description="Total TTC")
     def display_total_ttc(self, obj):
-        return format_html('<strong>{:,.0f} FCFA</strong>', obj.total_ttc)
+        value = float(obj.total_ttc or 0)
+        formatted = "{:,.0f}".format(value)
+        return format_html('<strong>{} FCFA</strong>', formatted)
     
     @admin.display(description="Net à Payer")
     def display_net_to_pay(self, obj):
-        return format_html('<strong style="color: green;">{:,.0f} FCFA</strong>', obj.net_to_pay)
+        value = float(obj.net_to_pay or 0)
+        formatted = "{:,.0f}".format(value)
+        return format_html('<strong style="color: green;">{} FCFA</strong>', formatted)
     
     actions = ['mark_as_sent', 'mark_as_paid', 'mark_as_overdue']
     
