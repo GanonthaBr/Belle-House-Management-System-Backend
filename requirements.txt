@@ -1,0 +1,33 @@
+# Django Core
+Django>=4.2,<5.0
+djangorestframework>=3.14
+
+# Authentication
+djangorestframework-simplejwt>=5.3
+
+# Database
+psycopg2-binary>=2.9
+
+# CORS
+django-cors-headers>=4.3
+
+# Environment Variables
+python-decouple>=3.8
+
+# Image Processing
+Pillow>=10.0
+
+# Filtering
+django-filter>=23.5
+
+# Audit Logging
+django-auditlog>=2.3
+
+# Firebase Push Notifications
+firebase-admin>=6.4
+
+# Production Server
+gunicorn>=21.2
+
+# API Documentation
+drf-spectacular>=0.27
