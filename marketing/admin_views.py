@@ -49,8 +49,8 @@ class AdminPortfolioViewSet(BaseAdminViewSet):
     """
     lookup_field = 'slug'
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category', 'featured']
-    search_fields = ['title', 'description', 'location']
+    filterset_fields = ['category', 'is_featured']
+    search_fields = ['title', 'description', 'city']
     ordering_fields = ['created_at', 'title']
     ordering = ['-created_at']
     
@@ -102,9 +102,9 @@ class AdminTestimonialViewSet(BaseAdminViewSet):
     queryset = Testimonial.objects.all()
     serializer_class = TestimonialSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['featured']
-    search_fields = ['author_name', 'content', 'project_type']
-    ordering_fields = ['created_at', 'author_name']
+    filterset_fields = ['is_featured']
+    search_fields = ['client_name', 'content', 'role']
+    ordering_fields = ['created_at', 'client_name']
     ordering = ['-created_at']
 
 
@@ -116,13 +116,13 @@ class AdminBlogPostViewSet(BaseAdminViewSet):
     """
     lookup_field = 'slug'
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['status', 'author']
+    filterset_fields = ['is_published']
     search_fields = ['title', 'content', 'excerpt']
-    ordering_fields = ['created_at', 'published_at', 'title']
+    ordering_fields = ['created_at', 'published_date', 'title']
     ordering = ['-created_at']
     
     def get_queryset(self):
-        return BlogPost.objects.select_related('author').all()
+        return BlogPost.objects.all()
     
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
@@ -132,4 +132,4 @@ class AdminBlogPostViewSet(BaseAdminViewSet):
         return BlogPostListSerializer
     
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user, created_by=self.request.user)
+        serializer.save(created_by=self.request.user)

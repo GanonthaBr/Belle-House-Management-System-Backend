@@ -28,9 +28,9 @@ class AdminConstructionLeadViewSet(viewsets.ModelViewSet):
     """
     permission_classes = [IsAuthenticated, IsAdminUser]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['status', 'land_status', 'budget_range']
-    search_fields = ['full_name', 'email', 'phone', 'city_or_neighborhood', 'project_details']
-    ordering_fields = ['created_at', 'status', 'full_name']
+    filterset_fields = ['status', 'has_land', 'interested_in']
+    search_fields = ['name', 'email', 'phone', 'location_of_land', 'message']
+    ordering_fields = ['created_at', 'status', 'name']
     ordering = ['-created_at']
     http_method_names = ['get', 'put', 'patch', 'delete', 'head', 'options']  # No POST - leads come from public form
     

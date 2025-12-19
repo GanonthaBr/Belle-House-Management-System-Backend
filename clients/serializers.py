@@ -170,7 +170,7 @@ class AppPromotionWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = AppPromotion
         fields = [
-            'title', 'description', 'banner_image',
+            'title', 'banner_image',
             'linked_portfolio', 'external_link',
             'order', 'is_active'
         ]
