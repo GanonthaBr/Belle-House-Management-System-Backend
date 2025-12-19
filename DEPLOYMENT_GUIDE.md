@@ -330,7 +330,7 @@ upstream django {
 
 server {
     listen 80;
-    server_name api.votre-domaine.com votre-domaine.com VOTRE_IP_VPS;
+    server_name api2.bellehouseniger.com bellehouseniger.com 51.91.159.155;
 
     client_max_body_size 50M;
 
