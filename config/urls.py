@@ -50,12 +50,20 @@ urlpatterns = [
     path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     
     # ==========================================================================
-    # App-specific URLs (to be added in Phase 3)
+    # Public API Endpoints (No Authentication)
     # ==========================================================================
-    # path('api/', include('marketing.urls')),
-    # path('api/', include('leads.urls')),
-    # path('api/app/', include('clients.urls')),
-    # path('api/', include('billing.urls')),
+    path('api/', include('marketing.urls')),
+    path('api/', include('leads.urls')),
+    
+    # ==========================================================================
+    # Mobile App API Endpoints (Client Authentication)
+    # ==========================================================================
+    path('api/app/', include('clients.urls')),
+    
+    # ==========================================================================
+    # Admin API Endpoints (Staff Authentication)
+    # ==========================================================================
+    path('api/admin-api/', include('config.admin_urls')),
 ]
 
 # Serve media files in development
