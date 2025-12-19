@@ -771,10 +771,11 @@ docker-compose exec db pg_dump -U $DB_USER $DB_NAME > backup.sql
 - [x] Image compression on upload (Pillow)
 - [x] Lead conversion signals (optional auto-convert)
 
-### Phase 5: Notifications
-- [ ] Integrate Firebase FCM
-- [ ] Set up email templates
-- [ ] Implement signal handlers for triggers
+### Phase 5: Notifications ✅
+- [x] Integrate Firebase FCM (push notifications)
+- [x] Set up email templates (welcome, password reset, invoice, project update)
+- [x] Implement signal handlers for triggers (project update, new invoice)
+- [x] FCM token update endpoint (`/api/app/fcm-token/`)
 
 ### Phase 6: Admin Panel ✅
 - [x] Customize Django Admin

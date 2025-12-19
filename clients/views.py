@@ -116,3 +116,38 @@ class AppPromotionListView(generics.ListAPIView):
     
     def get_queryset(self):
         return AppPromotion.objects.filter(is_active=True).order_by('order')
+
+
+class UpdateFCMTokenView(generics.GenericAPIView):
+    """
+    Update FCM token for push notifications.
+    
+    POST /api/app/fcm-token/
+    
+    Body: { "fcm_token": "your-fcm-token-here" }
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        fcm_token = request.data.get('fcm_token')
+        
+        if not fcm_token:
+            return Response(
+                {'error': 'fcm_token is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            client_profile = request.user.client_profile
+            client_profile.fcm_token = fcm_token
+            client_profile.save(update_fields=['fcm_token', 'updated_at'])
+            
+            return Response({
+                'message': 'FCM token updated successfully',
+                'fcm_token': fcm_token
+            })
+        except ClientProfile.DoesNotExist:
+            return Response(
+                {'error': 'Client profile not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )

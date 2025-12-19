@@ -1,0 +1,37 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<h1>Bienvenue chez Belle House! 🏠</h1>
+
+<p>Bonjour <strong>{{ client_name }}</strong>,</p>
+
+<p>Nous sommes ravis de vous accueillir parmi nos clients! Votre compte a été créé avec succès.</p>
+
+<div class="highlight">
+    <p><strong>Vos informations de connexion:</strong></p>
+    <p>📧 Email: <strong>{{ email }}</strong></p>
+    {% if temporary_password %}
+    <p>🔑 Mot de passe temporaire: <strong>{{ temporary_password }}</strong></p>
+    <p style="color: #E65100; font-size: 13px;">⚠️ Nous vous recommandons de changer ce mot de passe dès votre première connexion.</p>
+    {% endif %}
+</div>
+
+<p>Avec notre application mobile, vous pouvez:</p>
+<ul>
+    <li>✅ Suivre l'avancement de vos projets en temps réel</li>
+    <li>✅ Recevoir des notifications à chaque mise à jour</li>
+    <li>✅ Consulter vos factures et paiements</li>
+    <li>✅ Communiquer directement avec notre équipe</li>
+</ul>
+
+{% if app_url %}
+<p style="text-align: center;">
+    <a href="{{ app_url }}" class="button">Télécharger l'application</a>
+</p>
+{% endif %}
+
+<p>Si vous avez des questions, n'hésitez pas à nous contacter.</p>
+
+<p>Cordialement,<br>
+<strong>L'équipe Belle House</strong></p>
+{% endblock %}

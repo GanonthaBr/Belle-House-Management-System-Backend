@@ -1,0 +1,38 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<h1>Mise à jour de votre projet 🏗️</h1>
+
+<p>Bonjour <strong>{{ client_name }}</strong>,</p>
+
+<p>Nous avons une nouvelle mise à jour concernant votre projet <strong>{{ project_name }}</strong>.</p>
+
+<div class="highlight">
+    <h3 style="margin-top: 0; color: #FF5722;">{{ update_title }}</h3>
+    <p>{{ update_description }}</p>
+</div>
+
+<div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+    <h4 style="margin-top: 0;">État actuel du projet</h4>
+    <div class="info-row">
+        <span class="info-label">Phase actuelle:</span>
+        <span class="info-value">{{ current_phase }}</span>
+    </div>
+    <div class="info-row">
+        <span class="info-label">Progression:</span>
+        <span class="info-value">{{ progress }}%</span>
+    </div>
+    <div style="background-color: #e0e0e0; border-radius: 10px; height: 20px; margin-top: 10px;">
+        <div style="background-color: #FF5722; border-radius: 10px; height: 20px; width: {{ progress }}%;"></div>
+    </div>
+</div>
+
+<p>Connectez-vous à l'application pour voir tous les détails et photos.</p>
+
+<p style="text-align: center;">
+    <a href="#" class="button">Voir dans l'application</a>
+</p>
+
+<p>Cordialement,<br>
+<strong>L'équipe Belle House</strong></p>
+{% endblock %}
