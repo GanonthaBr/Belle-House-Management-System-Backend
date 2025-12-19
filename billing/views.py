@@ -48,6 +48,15 @@ class AdminInvoiceViewSet(viewsets.ModelViewSet):
             return InvoiceDetailSerializer
         return InvoiceListSerializer
     
+    def create(self, request, *args, **kwargs):
+        """Override to return detailed response with invoice_number."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        # Return with detail serializer to include invoice_number
+        output_serializer = InvoiceDetailSerializer(serializer.instance)
+        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+    
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
     

@@ -143,7 +143,7 @@ class AdminActiveProjectViewSet(viewsets.ModelViewSet):
         POST /api/admin/projects/{id}/advance_phase/
         """
         project = self.get_object()
-        phases = [choice[0] for choice in ActiveProject.PhaseChoices.choices]
+        phases = [choice[0] for choice in ActiveProject.Phase.choices]
         current_index = phases.index(project.current_phase)
         
         if current_index < len(phases) - 1:
