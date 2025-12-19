@@ -29,6 +29,8 @@ The goal is to build a centralized backend API using **Django** and **Django RES
 | **Email** | SMTP (Gmail for dev) / SendGrid (prod) | For password reset & notifications |
 | **CORS** | `django-cors-headers` | Whitelist frontend domains |
 | **Audit Logging** | `django-auditlog` or `django-simple-history` | Track all data changes |
+| **Deployment** | Docker + Docker Compose | On OVHCloud VPS |
+| **Web Server** | Nginx + Gunicorn | Reverse proxy + WSGI |
 
 ### Key Python Packages
 ```
@@ -529,13 +531,204 @@ CLOUDINARY_API_SECRET=your-api-secret
 
 ---
 
-## 12. External Services Setup
+## 12. Docker Deployment (OVHCloud VPS)
+
+### Container Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    OVHCloud VPS                         │
+├─────────────────────────────────────────────────────────┤
+│  ┌─────────┐    ┌─────────────┐    ┌────────────────┐  │
+│  │  Nginx  │───▶│   Gunicorn  │───▶│  Django App    │  │
+│  │  :80    │    │   :8000     │    │  (API)         │  │
+│  │  :443   │    └─────────────┘    └────────────────┘  │
+│  └─────────┘                              │            │
+│       │                                   ▼            │
+│       │                           ┌────────────────┐   │
+│       │                           │  PostgreSQL    │   │
+│       │                           │  :5432         │   │
+│       ▼                           └────────────────┘   │
+│  ┌─────────────┐                                       │
+│  │   Static    │                                       │
+│  │   /media    │                                       │
+│  └─────────────┘                                       │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Docker Files to Create
+
+**1. `Dockerfile`**
+```dockerfile
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy project
+COPY . .
+
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
+EXPOSE 8000
+
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi:application"]
+```
+
+**2. `docker-compose.yml`** (Production)
+```yaml
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    restart: always
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    command: gunicorn --bind 0.0.0.0:8000 --workers 3 config.wsgi:application
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - static_volume:/app/staticfiles:ro
+      - media_volume:/app/media:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro  # For HTTPS certificates
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+```
+
+**3. `docker-compose.dev.yml`** (Development)
+```yaml
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env.dev
+    command: python manage.py runserver 0.0.0.0:8000
+```
+
+**4. `nginx/nginx.conf`**
+```nginx
+events {
+    worker_connections 1024;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    upstream django {
+        server web:8000;
+    }
+
+    server {
+        listen 80;
+        server_name your-domain.com;  # Replace with actual domain
+
+        client_max_body_size 10M;  # For image uploads
+
+        location /static/ {
+            alias /app/staticfiles/;
+        }
+
+        location /media/ {
+            alias /app/media/;
+        }
+
+        location / {
+            proxy_pass http://django;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+}
+```
+
+### Deployment Commands
+
+```bash
+# First deployment
+ssh user@your-vps-ip
+git clone <repo-url>
+cd system_de_gestion_belle_house_backend
+cp .env.example .env  # Edit with production values
+docker-compose up -d --build
+docker-compose exec web python manage.py migrate
+docker-compose exec web python manage.py createsuperuser
+
+# Updates
+git pull
+docker-compose up -d --build
+docker-compose exec web python manage.py migrate
+
+# View logs
+docker-compose logs -f web
+
+# Database backup
+docker-compose exec db pg_dump -U $DB_USER $DB_NAME > backup.sql
+```
+
+---
+
+## 13. External Services Setup
 
 ### Required Before Production
 
 | Service | Purpose | Setup Time | Free Tier |
 |---------|---------|------------|-----------|
-| **PostgreSQL** | Production database | 10 min | Yes (Render, Railway, Supabase) |
+| **PostgreSQL** | Production database | Included in Docker | N/A (self-hosted) |
 | **Firebase** | Push notifications | 15 min | Yes (generous limits) |
 | **Email SMTP** | Transactional emails | 5 min | Gmail: 500/day |
 | **Cloudinary** | Image storage/CDN | 10 min | 25GB storage |
@@ -544,10 +737,11 @@ CLOUDINARY_API_SECRET=your-api-secret
 - WhatsApp Business API (requires payment)
 - SMS Gateway (not required)
 - Payment Gateway (invoices tracked, not paid online)
+- SSL/HTTPS (use Let's Encrypt + Certbot on VPS)
 
 ---
 
-## 13. Implementation Checklist
+## 14. Implementation Checklist
 
 ### Phase 1: Core Setup
 - [ ] Initialize Django project with proper structure
@@ -589,6 +783,17 @@ CLOUDINARY_API_SECRET=your-api-secret
 - [ ] Write API tests
 - [ ] Test notification flows
 - [ ] Generate API documentation (Swagger/OpenAPI)
+
+### Phase 8: Docker & Deployment
+- [ ] Create Dockerfile
+- [ ] Create docker-compose.yml (prod)
+- [ ] Create docker-compose.dev.yml (dev)
+- [ ] Create nginx.conf
+- [ ] Create .env.example template
+- [ ] Test local Docker build
+- [ ] Deploy to OVHCloud VPS
+- [ ] Set up SSL with Let's Encrypt
+- [ ] Configure domain DNS
 
 ---
 
