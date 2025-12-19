@@ -97,18 +97,18 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # =============================================================================
 
 # Default: SQLite for development
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 # PostgreSQL configuration (uncomment for production)
-# DATABASE_URL = config('DATABASE_URL', default=None)
-# if DATABASE_URL:
-#     import dj_database_url
-#     DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
+DATABASE_URL = config('DATABASE_URL', default=None)
+if DATABASE_URL:
+    import dj_database_url
+    DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
 
 
 # =============================================================================
