@@ -798,7 +798,7 @@ docker-compose exec db pg_dump -U $DB_USER $DB_NAME > backup.sql
 - [ ] Test local Docker build
 - [ ] Deploy to OVHCloud VPS
 - [ ] Set up SSL with Let's Encrypt
-- [ ] Configure domain DNS
+- [X] Configure domain DNS
 
 ---
 
