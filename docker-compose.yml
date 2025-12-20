@@ -25,7 +25,7 @@ services:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8000/"]
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000')"]
       interval: 30s
       timeout: 10s
       retries: 5
