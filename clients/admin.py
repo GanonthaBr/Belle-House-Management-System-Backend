@@ -110,6 +110,19 @@ class ProjectUpdateAdmin(admin.ModelAdmin):
     date_hierarchy = 'posted_at'
     autocomplete_fields = ['project']
     
+    fieldsets = (
+        ('Projet', {
+            'fields': ('project',)
+        }),
+        ('Contenu', {
+            'fields': ('title', 'description')
+        }),
+        ('Média', {
+            'fields': ('image', 'video_url'),
+            'description': 'Ajoutez une photo ou un lien vidéo (ou les deux)'
+        }),
+    )
+    
     def get_queryset(self, request):
         return ProjectUpdate.all_objects.all()
 
