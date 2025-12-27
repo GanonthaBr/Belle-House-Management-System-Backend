@@ -210,7 +210,13 @@ class ProjectUpdate(BaseModel):
         upload_to='projects/updates/',
         blank=True,
         null=True,
-        verbose_name="Photo du Chantier"
+        verbose_name="Photo du Chantier",
+        help_text="Télécharger une photo du chantier"
+    )
+    video_url = models.URLField(
+        blank=True,
+        verbose_name="Lien Vidéo",
+        help_text="Lien YouTube, Vimeo ou autre (optionnel)"
     )
     posted_at = models.DateTimeField(
         auto_now_add=True,

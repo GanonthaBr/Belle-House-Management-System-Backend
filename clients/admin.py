@@ -31,7 +31,7 @@ class ProjectUpdateInline(admin.TabularInline):
     """Inline for project updates on ActiveProject page."""
     model = ProjectUpdate
     extra = 1
-    fields = ['title', 'description', 'image', 'posted_at']
+    fields = ['title', 'description', 'image', 'video_url', 'posted_at']
     readonly_fields = ['posted_at']
 
 

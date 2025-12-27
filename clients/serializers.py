@@ -75,7 +75,7 @@ class ProjectUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectUpdate
         fields = [
-            'id', 'title', 'description', 'image', 'posted_at'
+            'id', 'title', 'description', 'image', 'video_url', 'posted_at'
         ]
 
 
@@ -84,7 +84,7 @@ class ProjectUpdateWriteSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ProjectUpdate
-        fields = ['project', 'title', 'description', 'image']
+        fields = ['project', 'title', 'description', 'image', 'video_url']
 
 
 # =============================================================================
