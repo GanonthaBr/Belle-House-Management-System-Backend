@@ -42,7 +42,7 @@ class ClientProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'phone', 'whatsapp_enabled', 'created_at', 'is_deleted']
     list_filter = ['whatsapp_enabled', 'is_deleted']
     search_fields = ['user__username', 'user__email', 'user__first_name', 'user__last_name', 'phone']
-    raw_id_fields = ['user']
+    autocomplete_fields = ['user']
     
     fieldsets = (
         ('Utilisateur', {
@@ -72,7 +72,8 @@ class ActiveProjectAdmin(admin.ModelAdmin):
     list_filter = ['current_phase', 'is_deleted', 'start_date']
     search_fields = ['project_name', 'client__user__first_name', 'client__user__last_name', 'location']
     date_hierarchy = 'start_date'
-    raw_id_fields = ['client']
+    autocomplete_fields = ['client']
+    readonly_fields = ['progress_percentage']
     
     inlines = [ProjectUpdateInline]
     
@@ -87,7 +88,8 @@ class ActiveProjectAdmin(admin.ModelAdmin):
             'fields': ('start_date', 'estimated_completion')
         }),
         ('Progression', {
-            'fields': ('current_phase', 'progress_percentage')
+            'fields': ('current_phase', 'progress_percentage'),
+            'description': 'Le pourcentage de progression est calculé automatiquement selon la phase.'
         }),
         ('Finances', {
             'fields': ('total_quote', 'amount_paid')
@@ -106,7 +108,7 @@ class ProjectUpdateAdmin(admin.ModelAdmin):
     list_filter = ['is_deleted', 'posted_at']
     search_fields = ['title', 'description', 'project__project_name']
     date_hierarchy = 'posted_at'
-    raw_id_fields = ['project']
+    autocomplete_fields = ['project']
     
     def get_queryset(self, request):
         return ProjectUpdate.all_objects.all()
@@ -120,7 +122,7 @@ class AppPromotionAdmin(admin.ModelAdmin):
     list_filter = ['is_active', 'is_deleted']
     search_fields = ['title']
     list_editable = ['is_active', 'order']
-    raw_id_fields = ['linked_portfolio']
+    autocomplete_fields = ['linked_portfolio']
     
     fieldsets = (
         ('Contenu', {

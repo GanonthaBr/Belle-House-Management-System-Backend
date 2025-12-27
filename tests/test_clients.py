@@ -101,7 +101,7 @@ class TestMyProjects:
         other_project = ActiveProject.objects.create(
             client=other_profile,
             project_name='Other Client Project',
-            current_phase='FOUNDATION',
+            current_phase='FONDATION',
             start_date=timezone.now().date(),
             estimated_completion=timezone.now().date() + timedelta(days=180),
             created_by=admin_user

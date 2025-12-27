@@ -79,11 +79,24 @@ class ActiveProject(BaseModel):
     """
     
     class Phase(models.TextChoices):
-        FOUNDATION = 'FOUNDATION', 'Fondation'
+        FONDATION = 'FONDATION', 'Fondation'
         ELEVATION = 'ELEVATION', 'Élévation'
-        ROOFING = 'ROOFING', 'Toiture'
-        FINISHING = 'FINISHING', 'Finition'
-        HANDOVER = 'HANDOVER', 'Livraison'
+        PREP_DALLE = 'PREP_DALLE', 'Préparation dalle'
+        COULAGE_DALLE = 'COULAGE_DALLE', 'Coulage de la dalle'
+        DECOFFRAGE_DALLE = 'DECOFFRAGE_DALLE', 'Décoffrage de la dalle'
+        CRÉPISSAGES = 'CRÉPISSAGES', 'Crépissages'
+        FINITION = 'FINITION', 'Finition'
+    
+    # Phase to progress percentage mapping
+    PHASE_PROGRESS = {
+        'FONDATION': 15,
+        'ELEVATION': 30,
+        'PREP_DALLE': 45,
+        'COULAGE_DALLE': 55,
+        'DECOFFRAGE_DALLE': 65,
+        'CRÉPISSAGES': 80,
+        'FINITION': 100,
+    }
     
     # Client relationship
     client = models.ForeignKey(
@@ -120,7 +133,7 @@ class ActiveProject(BaseModel):
     current_phase = models.CharField(
         max_length=20,
         choices=Phase.choices,
-        default=Phase.FOUNDATION,
+        default=Phase.FONDATION,
         verbose_name="Phase Actuelle"
     )
     
@@ -165,12 +178,11 @@ class ActiveProject(BaseModel):
             return round((self.amount_paid / self.total_quote) * 100, 2)
         return 0
     
-    def clean(self):
-        from django.core.exceptions import ValidationError
-        if self.progress_percentage < 0 or self.progress_percentage > 100:
-            raise ValidationError({
-                'progress_percentage': 'La progression doit être entre 0 et 100.'
-            })
+    def save(self, *args, **kwargs):
+        """Auto-calculate progress percentage based on current phase."""
+        if self.current_phase:
+            self.progress_percentage = self.PHASE_PROGRESS.get(self.current_phase, 0)
+        super().save(*args, **kwargs)
 
 
 class ProjectUpdate(BaseModel):

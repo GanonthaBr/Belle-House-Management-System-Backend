@@ -173,7 +173,7 @@ class TestAdminProjects:
             'project_name': 'New Villa Project',
             'description': 'A new construction project',
             'location': 'Niamey',
-            'current_phase': 'FOUNDATION',
+            'current_phase': 'FONDATION',
             'start_date': timezone.now().date().isoformat(),
             'estimated_completion': (timezone.now().date() + timedelta(days=180)).isoformat()
         }

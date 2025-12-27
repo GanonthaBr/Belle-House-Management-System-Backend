@@ -29,7 +29,7 @@ class PortfolioItemAdmin(admin.ModelAdmin):
     
     list_display = ['title', 'category', 'city', 'year', 'is_featured', 'order', 'is_deleted']
     list_filter = ['category', 'is_featured', 'is_deleted', 'year', 'city']
-    search_fields = ['title', 'description', 'owner', 'city']
+    search_fields = ['title', 'description', 'owner', 'city', 'slug']
     prepopulated_fields = {'slug': ('title',)}
     list_editable = ['order', 'is_featured']
     
