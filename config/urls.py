@@ -30,6 +30,9 @@ urlpatterns = [
     # Django Admin
     path('admin/', admin.site.urls),
     
+    # Internationalization (for language switching)
+    path('i18n/', include('django.conf.urls.i18n')),
+    
     # ==========================================================================
     # Authentication Endpoints (Registration, Login, Password Reset)
     # ==========================================================================
