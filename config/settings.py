@@ -167,11 +167,9 @@ TIME_ZONE = 'Africa/Niamey'  # Niger timezone
 USE_I18N = True
 USE_TZ = True
 
-from django.utils.translation import gettext_lazy as _
-
 LANGUAGES = [
-    ('fr', _('Français')),
-    ('en', _('English')),
+    ('fr', 'Français'),
+    ('en', 'English'),
 ]
 
 LOCALE_PATHS = [
