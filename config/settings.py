@@ -46,6 +46,7 @@ SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=True, cast=bool)
 # =============================================================================
 
 DJANGO_APPS = [
+    'jazzmin',  # Must be before django.contrib.admin
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -83,6 +84,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # CORS - must be before CommonMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # For language switching
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -160,10 +162,21 @@ AUTH_PASSWORD_VALIDATORS = [
 # INTERNATIONALIZATION
 # =============================================================================
 
-LANGUAGE_CODE = 'fr-fr'  # French for Niger
+LANGUAGE_CODE = 'fr'  # Default to French
 TIME_ZONE = 'Africa/Niamey'  # Niger timezone
 USE_I18N = True
 USE_TZ = True
+
+from django.utils.translation import gettext_lazy as _
+
+LANGUAGES = [
+    ('fr', _('Français')),
+    ('en', _('English')),
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
 
 
 # =============================================================================
@@ -280,3 +293,163 @@ SPECTACULAR_SETTINGS = {
 # =============================================================================
 
 AUDITLOG_INCLUDE_ALL_MODELS = True
+
+
+# =============================================================================
+# JAZZMIN ADMIN THEME CONFIGURATION
+# =============================================================================
+
+JAZZMIN_SETTINGS = {
+    # Site branding
+    "site_title": "Belle House Admin",
+    "site_header": "Belle House",
+    "site_brand": "Belle House Management",
+    "site_logo": None,  # Add your logo path here if you have one
+    "login_logo": None,
+    "site_logo_classes": "img-circle",
+    "site_icon": None,
+    "welcome_sign": "Bienvenue sur Belle House Admin",
+    
+    # Copyright
+    "copyright": "Belle House Niger",
+    
+    # Search model in sidebar
+    "search_model": "auth.User",
+    
+    # User menu at top right
+    "user_avatar": None,
+    
+    ############
+    # Top Menu #
+    ############
+    
+    # Links to put along the top menu
+    "topmenu_links": [
+        {"name": "Accueil", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Site Web", "url": "https://bellehouseniger.com", "new_window": True},
+        {"app": "auth"},
+    ],
+    
+    #############
+    # Side Menu #
+    #############
+    
+    # Whether to display the side menu
+    "show_sidebar": True,
+    
+    # Whether to aut expand the menu
+    "navigation_expanded": True,
+    
+    # Hide these apps when generating side menu
+    "hide_apps": [],
+    
+    # Hide these models when generating side menu
+    "hide_models": [],
+    
+    # List of apps (and models within) to base side menu ordering on
+    "order_with_respect_to": [
+        "auth",
+        "clients",
+        "leads",
+        "marketing",
+        "billing",
+        "core",
+    ],
+    
+    # Custom icons for apps/models
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        
+        # Clients app
+        "clients.Client": "fas fa-user-tie",
+        "clients.ActiveProject": "fas fa-project-diagram",
+        "clients.ProjectUpdate": "fas fa-tasks",
+        "clients.Promotion": "fas fa-bullhorn",
+        
+        # Leads app
+        "leads.ConstructionLead": "fas fa-hard-hat",
+        "leads.ContactInquiry": "fas fa-envelope",
+        
+        # Marketing app
+        "marketing.Service": "fas fa-tools",
+        "marketing.Portfolio": "fas fa-images",
+        "marketing.Testimonial": "fas fa-star",
+        "marketing.Partner": "fas fa-handshake",
+        "marketing.BlogPost": "fas fa-blog",
+        
+        # Billing app
+        "billing.Invoice": "fas fa-file-invoice-dollar",
+        "billing.Payment": "fas fa-credit-card",
+        
+        # Core app
+        "core.Notification": "fas fa-bell",
+    },
+    
+    # Icons that are used when no icon is manually specified
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+    
+    #############
+    # UI Tweaks #
+    #############
+    
+    # Relative paths to custom CSS/JS scripts (must be present in static files)
+    "custom_css": "admin/css/custom_admin.css",
+    "custom_js": None,
+    
+    # Whether to show the UI customizer on the sidebar
+    "show_ui_builder": True,
+    
+    ###############
+    # Change view #
+    ###############
+    
+    # Render out the change view as a single form, or in tabs
+    "changeform_format": "horizontal_tabs",
+    # "changeform_format": "vertical_tabs",
+    # "changeform_format": "collapsible",
+    # "changeform_format": "carousel",
+    
+    # Override change form on a per modeladmin basis
+    "changeform_format_overrides": {
+        "auth.user": "collapsible",
+        "auth.group": "vertical_tabs",
+    },
+    
+    # Add a language dropdown to the admin
+    "language_chooser": True,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": "navbar-dark",
+    "accent": "accent-primary",
+    "navbar": "navbar-dark navbar-primary",
+    "no_navbar_border": False,
+    "navbar_fixed": False,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-primary",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": False,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "flatly",  # Modern Bootstrap theme
+    "dark_mode_theme": None,
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success"
+    }
+}
