@@ -14,7 +14,8 @@ from .models import ClientProfile, ActiveProject, ProjectUpdate, AppPromotion
 from .serializers import (
     ClientProfileSerializer, ClientProfileUpdateSerializer,
     ActiveProjectListSerializer, ActiveProjectDetailSerializer,
-    ProjectUpdateSerializer, AppPromotionSerializer
+    ProjectUpdateSerializer, AppPromotionSerializer,
+    FCMTokenSerializer
 )
 from billing.models import Invoice
 from billing.serializers import InvoiceListSerializer, InvoiceDetailSerializer
@@ -127,6 +128,7 @@ class UpdateFCMTokenView(generics.GenericAPIView):
     Body: { "fcm_token": "your-fcm-token-here" }
     """
     permission_classes = [IsAuthenticated]
+    serializer_class = FCMTokenSerializer
     
     def post(self, request):
         fcm_token = request.data.get('fcm_token')

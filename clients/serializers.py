@@ -11,6 +11,15 @@ from billing.serializers import InvoiceListSerializer
 
 
 # =============================================================================
+# FCM TOKEN SERIALIZER
+# =============================================================================
+
+class FCMTokenSerializer(serializers.Serializer):
+    """Serializer for FCM token update."""
+    fcm_token = serializers.CharField(required=True, max_length=255)
+
+
+# =============================================================================
 # USER & PROFILE SERIALIZERS
 # =============================================================================
 
