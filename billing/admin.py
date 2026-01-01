@@ -12,8 +12,8 @@ class InvoiceItemInline(admin.TabularInline):
     model = InvoiceItem
     extra = 5  # Show 5 empty rows by default (you can add more by clicking "Ajouter une autre ligne")
     min_num = 1  # Require at least 1 item
-    can_delete = True  # Show delete checkbox
-    fields = ['description', 'quantity', 'unit_price', 'total_price_display', 'DELETE']
+    can_delete = True  # Show delete checkbox automatically
+    fields = ['description', 'quantity', 'unit_price', 'total_price_display']
     readonly_fields = ['total_price_display']
     ordering = ['created_at']
     verbose_name = "Article / Service"
