@@ -169,7 +169,7 @@ class InvoiceAdmin(admin.ModelAdmin):
     def download_pdf_button(self, obj):
         """Display download PDF button in list view."""
         if obj.pk:
-            url = f'/api/admin/invoices/{obj.pk}/download-pdf/'
+            url = f'/api/admin-api/invoices/{obj.pk}/download-pdf/'
             return format_html(
                 '<a class="button" href="{}" target="_blank" style="background-color:#61a1d6; color:white; padding:5px 10px; text-decoration:none; border-radius:3px;">📄 PDF</a>',
                 url
@@ -180,7 +180,7 @@ class InvoiceAdmin(admin.ModelAdmin):
     def download_pdf_link(self, obj):
         """Display download PDF link in detail view."""
         if obj.pk:
-            url = f'/api/admin/invoices/{obj.pk}/download-pdf/'
+            url = f'/api/admin-api/invoices/{obj.pk}/download-pdf/'
             return format_html(
                 '<div style="background:#e8f5e9; padding:15px; border-left:5px solid #4caf50; margin:10px 0;">'
                 '<h3 style="margin-top:0; color:#2e7d32;">📄 Télécharger la Facture</h3>'
