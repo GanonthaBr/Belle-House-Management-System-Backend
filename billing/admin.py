@@ -12,11 +12,12 @@ class InvoiceItemInline(admin.TabularInline):
     model = InvoiceItem
     extra = 5  # Show 5 empty rows by default (you can add more by clicking "Ajouter une autre ligne")
     min_num = 1  # Require at least 1 item
-    fields = ['description', 'quantity', 'unit_price', 'total_price_display']
+    can_delete = True  # Show delete checkbox
+    fields = ['description', 'quantity', 'unit_price', 'total_price_display', 'DELETE']
     readonly_fields = ['total_price_display']
     ordering = ['created_at']
     verbose_name = "Article / Service"
-    verbose_name_plural = "📦 ARTICLES DE LA FACTURE (Cliquez 'Ajouter une autre ligne' pour plus)"
+    verbose_name_plural = "📦 ARTICLES DE LA FACTURE - Remplissez ci-dessous (Cochez 'Supprimer' pour retirer)"
     
     def get_formset(self, request, obj=None, **kwargs):
         formset = super().get_formset(request, obj, **kwargs)
@@ -54,28 +55,51 @@ class InvoiceAdmin(admin.ModelAdmin):
     
     inlines = [InvoiceItemInline]
     
-    # Simple vertical form - no tabs, everything visible
-    fields = [
-        'display_help',
-        'project',
-        'invoice_number',
-        'subject', 
-        'status',
-        'issue_date',
-        'due_date',
-        'tax_type',
-        'tax_percentage',
-        'advance_payment',
-        'payment_mode',
-        'display_subtotal',
-        'display_tax_amount', 
-        'display_total_ttc',
-        'display_net_to_pay',
-        'client_name',
-        'client_address',
-        'client_phone',
-        'notes',
-    ]
+    # Use fieldsets to control layout and prevent automatic tabbing
+    fieldsets = (
+        (None, {
+            'fields': ('display_help',),
+        }),
+        ('Informations de Base', {
+            'fields': (
+                'project',
+                'invoice_number',
+                'subject',
+                'status',
+                'issue_date',
+                'due_date',
+            ),
+        }),
+        ('Configuration des Taxes et Paiement', {
+            'fields': (
+                'tax_type',
+                'tax_percentage',
+                'advance_payment',
+                'payment_mode',
+            ),
+        }),
+        ('💰 Totaux Calculés Automatiquement', {
+            'fields': (
+                'display_subtotal',
+                'display_tax_amount',
+                'display_total_ttc',
+                'display_net_to_pay',
+            ),
+            'classes': ('collapse',),
+        }),
+        ('Informations Client (Auto-rempli)', {
+            'fields': (
+                'client_name',
+                'client_address',
+                'client_phone',
+            ),
+            'classes': ('collapse',),
+        }),
+        ('Notes', {
+            'fields': ('notes',),
+            'classes': ('collapse',),
+        }),
+    )
     
     def display_help(self, obj):
         """Display help instructions at the top of the form."""
@@ -84,12 +108,13 @@ class InvoiceAdmin(admin.ModelAdmin):
             help_html = '''
             <div style="background: #e8f5e9; padding: 15px; border-left: 5px solid #4caf50; margin: 10px 0 20px 0;">
                 <h3 style="margin-top: 0; color: #2e7d32;">✅ Modification de facture</h3>
-                <p style="margin: 10px 0;"><strong>Les articles de la facture sont en bas de page ⬇️</strong></p>
+                <p style="margin: 10px 0;"><strong>⬇️ Les articles sont EN BAS DE CETTE PAGE - DESCENDEZ ⬇️</strong></p>
                 <ul style="margin: 0; line-height: 1.8;">
-                    <li>✏️ Modifiez les lignes existantes</li>
-                    <li>➕ Cliquez sur "Ajouter une autre ligne" pour plus d'articles</li>
-                    <li>❌ Cochez "Supprimer" pour retirer un article</li>
-                    <li>� Choisissez le type de taxe: ISB (-2%) ou TVA (+5%), ou saisissez un taux personnalisé</li>
+                    <li>📜 Faites défiler vers le bas pour voir "📦 ARTICLES DE LA FACTURE"</li>
+                    <li>✏️ Modifiez les lignes existantes directement</li>
+                    <li>➕ Cliquez "Ajouter une autre ligne de facture" pour ajouter</li>
+                    <li>❌ Cochez la case "Supprimer" à droite pour retirer une ligne</li>
+                    <li>💰 Type de taxe: ISB (-2%), TVA (+5%), ou personnalisé</li>
                 </ul>
             </div>
             '''
