@@ -55,69 +55,51 @@ class InvoiceAdmin(admin.ModelAdmin):
     
     inlines = [InvoiceItemInline]
     
-    fieldsets = (
-        ('📋 Instructions', {
-            'fields': ('display_help',),
-            'classes': ('wide',),
-        }),
-        ('1️⃣ Sélection du Projet', {
-            'fields': ('project',),
-            'description': '⚠️ ÉTAPE 1: Choisissez le projet du client. Les infos client seront auto-remplies.'
-        }),
-        ('2️⃣ Informations de la Facture', {
-            'fields': ('invoice_number', 'subject', 'status', 'issue_date', 'due_date'),
-            'description': '⚠️ ÉTAPE 2: Le numéro de facture est généré automatiquement. Remplissez le reste.'
-        }),
-        ('3️⃣ Paramètres Financiers', {
-            'fields': ('tax_percentage', 'advance_payment', 'payment_mode'),
-            'description': '⚠️ ÉTAPE 3: Configurez la TVA (%) et l\'acompte déjà versé.'
-        }),
-        ('4️⃣ Articles de la Facture (Scroll Down ⬇️)', {
-            'fields': (),
-            'description': '⚠️ ÉTAPE 4: DESCENDEZ EN BAS DE PAGE pour ajouter les lignes de facture (description, quantité, prix).'
-        }),
-        ('✅ Totaux Calculés Automatiquement', {
-            'fields': ('display_subtotal', 'display_tax_amount', 'display_total_ttc', 'display_net_to_pay'),
-            'description': '💰 Ces montants sont calculés automatiquement après avoir sauvegardé les lignes de facture.'
-        }),
-        ('📝 Informations Client (Auto-rempli)', {
-            'fields': ('client_name', 'client_address', 'client_phone'),
-            'classes': ('collapse',),
-            'description': 'Ces champs sont automatiquement remplis à partir du profil client.'
-        }),
-        ('📄 Notes Additionnelles', {
-            'fields': ('notes',),
-            'classes': ('collapse',)
-        }),
-    )
+    # Simple vertical form - no tabs, everything visible
+    fields = [
+        'display_help',
+        'project',
+        'invoice_number',
+        'subject', 
+        'status',
+        'issue_date',
+        'due_date',
+        'tax_percentage',
+        'advance_payment',
+        'payment_mode',
+        'display_subtotal',
+        'display_tax_amount', 
+        'display_total_ttc',
+        'display_net_to_pay',
+        'client_name',
+        'client_address',
+        'client_phone',
+        'notes',
+    ]
     
     def display_help(self, obj):
         """Display help instructions at the top of the form."""
         if obj and obj.pk:
             # Editing existing invoice
             help_html = '''
-            <div style="background: #e8f5e9; padding: 15px; border-left: 5px solid #4caf50; margin: 10px 0;">
+            <div style="background: #e8f5e9; padding: 15px; border-left: 5px solid #4caf50; margin: 10px 0 20px 0;">
                 <h3 style="margin-top: 0; color: #2e7d32;">✅ Modification de facture</h3>
-                <p style="margin: 10px 0;"><strong>Les lignes de facture sont en bas de cette page ⬇️</strong></p>
-                <p style="margin: 0;">Descendez pour voir la section "<strong>📦 LIGNES DE FACTURE</strong>" et modifier les articles.</p>
+                <p style="margin: 0;"><strong>Descendez en bas de page pour ajouter/modifier les lignes de facture (articles) ⬇️</strong></p>
             </div>
             '''
         else:
             # Creating new invoice
             help_html = '''
-            <div style="background: #fff3e0; padding: 20px; border-left: 5px solid #ff9800; margin: 10px 0;">
-                <h3 style="margin-top: 0; color: #e65100;">📖 Comment créer une facture (PREMIÈRE FOIS):</h3>
-                <ol style="line-height: 2;">
-                    <li><strong>Choisissez le projet</strong> → Les infos client seront remplies automatiquement</li>
-                    <li><strong>Remplissez l'objet, les dates, et la TVA</strong></li>
-                    <li><strong>⚠️ Cliquez "ENREGISTRER ET CONTINUER LA MODIFICATION"</strong> en bas</li>
-                    <li><strong>La page va se recharger</strong> → Vous verrez alors la section "📦 LIGNES DE FACTURE" apparaître en bas</li>
-                    <li><strong>Ajoutez vos lignes de facture</strong> (description, quantité, prix)</li>
-                    <li><strong>Cliquez "Enregistrer"</strong> → Les totaux seront calculés</li>
+            <div style="background: #fff3e0; padding: 15px; border-left: 5px solid #ff9800; margin: 10px 0 20px 0;">
+                <h3 style="margin-top: 0; color: #e65100;">🆕 Nouvelle Facture - Étapes:</h3>
+                <ol style="line-height: 1.8; margin: 10px 0;">
+                    <li>Remplissez tous les champs ci-dessous</li>
+                    <li>Cliquez sur <strong>"ENREGISTRER ET CONTINUER LA MODIFICATION"</strong></li>
+                    <li>La page se recharge → Les lignes de facture apparaissent en bas</li>
+                    <li>Ajoutez vos articles et sauvegardez</li>
                 </ol>
-                <p style="margin: 0; padding: 10px; background: #ffebee; border-left: 3px solid #f44336;">
-                    <strong>⚠️ TRÈS IMPORTANT:</strong> Vous devez d'abord enregistrer la facture une première fois. 
-                    Les lignes de facture n'apparaissent qu'après cette première sauvegarde!
+                <p style="margin: 0; padding: 8px; background: #ffebee; border-left: 3px solid #f44336; font-weight: bold;">
+                    ⚠️ Les lignes de facture n'apparaissent qu'après la première sauvegarde!
                 </p>
             </div>
             '''

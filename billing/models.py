@@ -38,7 +38,8 @@ class Invoice(BaseModel):
         'clients.ActiveProject',
         on_delete=models.CASCADE,
         related_name='invoices',
-        verbose_name="Projet"
+        verbose_name="1️⃣ Projet Client",
+        help_text="Sélectionnez le projet du client"
     )
     
     # Invoice Number (auto-generated)
@@ -53,23 +54,26 @@ class Invoice(BaseModel):
     # Invoice Details
     subject = models.CharField(
         max_length=255,
-        verbose_name="Objet",
-        help_text="Ex: Plan et suivi"
+        verbose_name="2️⃣ Objet de la Facture",
+        help_text="Ex: Construction villa, Plan et suivi, Travaux de finition..."
     )
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
         default=Status.DRAFT,
-        verbose_name="Statut"
+        verbose_name="Statut",
+        help_text="Brouillon par défaut"
     )
     
     # Dates
     issue_date = models.DateField(
         default=timezone.now,
-        verbose_name="Date d'Émission"
+        verbose_name="3️⃣ Date d'Émission",
+        help_text="Date de création de la facture"
     )
     due_date = models.DateField(
-        verbose_name="Date d'Échéance"
+        verbose_name="4️⃣ Date d'Échéance",
+        help_text="Date limite de paiement"
     )
     
     # Financial
@@ -77,13 +81,15 @@ class Invoice(BaseModel):
         max_digits=5,
         decimal_places=2,
         default=0,
-        verbose_name="TVA (%)"
+        verbose_name="5️⃣ TVA (%)",
+        help_text="Ex: 19 pour 19% de TVA (0 si pas de TVA)"
     )
     advance_payment = models.DecimalField(
         max_digits=15,
         decimal_places=2,
         default=0,
-        verbose_name="Acompte Versé"
+        verbose_name="6️⃣ Acompte Versé",
+        help_text="Montant déjà payé par le client (en FCFA)"
     )
     
     # Payment
@@ -91,7 +97,8 @@ class Invoice(BaseModel):
         max_length=20,
         choices=PaymentMode.choices,
         default=PaymentMode.CASH,
-        verbose_name="Mode de Paiement"
+        verbose_name="7️⃣ Mode de Paiement",
+        help_text="Comment le client va payer"
     )
     
     # Client Snapshot (captured at invoice creation for historical accuracy)
