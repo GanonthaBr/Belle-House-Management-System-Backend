@@ -126,34 +126,17 @@ class AdminInvoiceViewSet(viewsets.ModelViewSet):
         
         invoice = self.get_object()
         
-        # Convert logo to base64 for reliable PDF rendering
-        import base64
-        logo_data_uri = None
-        
-        # Try to find and encode logo
-        logo_paths = []
-        if hasattr(settings, 'STATIC_ROOT') and settings.STATIC_ROOT:
-            logo_paths.append(os.path.join(settings.STATIC_ROOT, 'images', 'logo.png'))
-        if settings.STATICFILES_DIRS:
-            logo_paths.append(os.path.join(settings.STATICFILES_DIRS[0], 'images', 'logo.png'))
-        
-        for logo_path in logo_paths:
-            if os.path.exists(logo_path):
-                try:
-                    with open(logo_path, 'rb') as logo_file:
-                        logo_base64 = base64.b64encode(logo_file.read()).decode('utf-8')
-                        logo_data_uri = f'data:image/png;base64,{logo_base64}'
-                        break
-                except Exception:
-                    continue
+        # Get logo URL using static URL
+        from django.templatetags.static import static
+        logo_url = request.build_absolute_uri(static('images/logo.png'))
         
         # Render HTML template
         html_string = render_to_string('billing/invoice_pdf.html', {
             'invoice': invoice,
-            'logo_data_uri': logo_data_uri,
+            'logo_url': logo_url,
         })
         
-        # Generate PDF
+        # Generate PDF with base_url so it can fetch the logo
         pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()
         
         # Create response
