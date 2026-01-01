@@ -13,13 +13,42 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Invoice, InvoiceItem
 from .serializers import (
     InvoiceListSerializer, InvoiceDetailSerializer, InvoiceWriteSerializer,
-    InvoiceItemSerializer
+    InvoiceItemSerializer, InvoiceItemWriteSerializer
 )
 
 
 # =============================================================================
 # ADMIN API VIEWS (Staff Role)
 # =============================================================================
+
+class AdminInvoiceItemViewSet(viewsets.ModelViewSet):
+    """
+    Admin invoice item management endpoint.
+    
+    list: GET /api/admin/invoice-items/
+    retrieve: GET /api/admin/invoice-items/{id}/
+    create: POST /api/admin/invoice-items/
+    update: PUT/PATCH /api/admin/invoice-items/{id}/
+    destroy: DELETE /api/admin/invoice-items/{id}/
+    """
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['invoice']
+    ordering_fields = ['order', 'created_at']
+    ordering = ['order', 'created_at']
+    
+    def get_queryset(self):
+        return InvoiceItem.objects.select_related('invoice', 'invoice__project').all()
+    
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return InvoiceItemWriteSerializer
+        return InvoiceItemSerializer
+    
+    def perform_destroy(self, instance):
+        """Hard delete for invoice items"""
+        instance.delete()
+
 
 class AdminInvoiceViewSet(viewsets.ModelViewSet):
     """

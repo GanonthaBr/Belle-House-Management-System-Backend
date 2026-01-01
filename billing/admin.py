@@ -10,8 +10,18 @@ from .models import Invoice, InvoiceItem
 class InvoiceItemInline(admin.TabularInline):
     """Inline for invoice items on Invoice page."""
     model = InvoiceItem
-    extra = 1
-    fields = ['description', 'quantity', 'unit_price', 'order']
+    extra = 1  # Start with 1 empty row
+    min_num = 1  # Require at least 1 item
+    fields = ['order', 'description', 'quantity', 'unit_price', 'total_price_display']
+    readonly_fields = ['total_price_display']
+    ordering = ['order']
+    
+    @admin.display(description="Total")
+    def total_price_display(self, obj):
+        if obj.pk:  # Only show for saved items
+            value = float(obj.total_price or 0)
+            return format_html('<strong>{:,.0f} FCFA</strong>', value)
+        return '-'
 
 
 @admin.register(Invoice)
@@ -50,14 +60,15 @@ class InvoiceAdmin(admin.ModelAdmin):
             'description': 'Ces champs sont automatiquement remplis à partir du profil client.'
         }),
         ('Finances', {
-            'fields': ('tax_percentage', 'advance_payment', 'payment_mode')
+            'fields': ('tax_percentage', 'advance_payment', 'payment_mode'),
+            'description': 'Les totaux sont calculés automatiquement en bas de page après ajout des lignes de facture.'
         }),
         ('Totaux Calculés', {
             'fields': ('display_subtotal', 'display_tax_amount', 'display_total_ttc', 'display_net_to_pay'),
-            'classes': ('collapse',)
         }),
         ('Notes', {
-            'fields': ('notes',)
+            'fields': ('notes',),
+            'classes': ('collapse',)
         }),
     )
     

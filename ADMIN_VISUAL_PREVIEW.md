@@ -247,3 +247,5 @@ Click the gear icon (⚙️) in sidebar bottom to:
 ---
 
 This is what your team will see when they access the admin dashboard! 🎉
+
+

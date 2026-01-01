@@ -79,23 +79,31 @@ class ActiveProject(BaseModel):
     """
     
     class Phase(models.TextChoices):
-        FONDATION = 'FONDATION', 'Fondation'
-        ELEVATION = 'ELEVATION', 'Élévation'
-        PREP_DALLE = 'PREP_DALLE', 'Préparation dalle'
-        COULAGE_DALLE = 'COULAGE_DALLE', 'Coulage de la dalle'
-        DECOFFRAGE_DALLE = 'DECOFFRAGE_DALLE', 'Décoffrage de la dalle'
-        CRÉPISSAGES = 'CRÉPISSAGES', 'Crépissages'
-        FINITION = 'FINITION', 'Finition'
+        CONCEPTION = 'CONCEPTION', 'Conception et Démarches'
+        IMPLANTATION = 'IMPLANTATION', 'Implantation'
+        FONDATIONS = 'FONDATIONS', 'Fondations'
+        ELEVATION_MURS = 'ELEVATION_MURS', 'Élévation des Murs'
+        DALLE = 'DALLE', 'Dalle et Acrotère'
+        CREPISSAGE = 'CREPISSAGE', 'Crépissage'
+        ELECTRICITE_PLOMBERIE = 'ELECTRICITE_PLOMBERIE', 'Électricité & Plomberie'
+        RESEAUX = 'RESEAUX', 'Réseaux et Sécurité'
+        CARRELAGE_PLAFOND = 'CARRELAGE_PLAFOND', 'Carrelage & Plafonnage'
+        PEINTURE_MENUISERIE = 'PEINTURE_MENUISERIE', 'Peinture & Menuiserie'
+        EXTERIEUR = 'EXTERIEUR', 'Aménagements Extérieurs'
     
-    # Phase to progress percentage mapping
+    # Phase to progress percentage mapping (cumulative)
     PHASE_PROGRESS = {
-        'FONDATION': 15,
-        'ELEVATION': 30,
-        'PREP_DALLE': 45,
-        'COULAGE_DALLE': 55,
-        'DECOFFRAGE_DALLE': 65,
-        'CRÉPISSAGES': 80,
-        'FINITION': 100,
+        'CONCEPTION': 5,              # Design & permits
+        'IMPLANTATION': 8,            # Site layout
+        'FONDATIONS': 23,             # Foundations
+        'ELEVATION_MURS': 41,         # Backfill + Form slab + Wall elevation
+        'DALLE': 57,                  # Slab prep + Pour + Acrotere
+        'CREPISSAGE': 65,             # Exterior + Interior render
+        'ELECTRICITE_PLOMBERIE': 81,  # Electrical + Plumbing + Insulation
+        'RESEAUX': 87,                # Video + Networks + Fire safety
+        'CARRELAGE_PLAFOND': 94,      # Tiling + Ceiling
+        'PEINTURE_MENUISERIE': 99,    # Glazing + Painting + Carpentry
+        'EXTERIEUR': 100,             # Landscaping + Pool (when applicable)
     }
     
     # Client relationship
@@ -131,9 +139,9 @@ class ActiveProject(BaseModel):
         help_text="Pourcentage de 0 à 100"
     )
     current_phase = models.CharField(
-        max_length=20,
+        max_length=30,
         choices=Phase.choices,
-        default=Phase.FONDATION,
+        default=Phase.CONCEPTION,
         verbose_name="Phase Actuelle"
     )
     

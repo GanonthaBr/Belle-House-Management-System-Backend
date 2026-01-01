@@ -19,7 +19,7 @@ from clients.admin_views import (
     AdminClientViewSet, AdminActiveProjectViewSet,
     AdminProjectUpdateViewSet, AdminPromotionViewSet
 )
-from billing.views import AdminInvoiceViewSet
+from billing.views import AdminInvoiceViewSet, AdminInvoiceItemViewSet
 
 router = DefaultRouter()
 
@@ -42,6 +42,7 @@ router.register(r'promotions', AdminPromotionViewSet, basename='admin-promotions
 
 # Billing endpoints
 router.register(r'invoices', AdminInvoiceViewSet, basename='admin-invoices')
+router.register(r'invoice-items', AdminInvoiceItemViewSet, basename='admin-invoice-items')
 
 urlpatterns = [
     path('', include(router.urls)),
