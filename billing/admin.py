@@ -10,29 +10,28 @@ from .models import Invoice, InvoiceItem
 class InvoiceItemInline(admin.TabularInline):
     """Inline for invoice items on Invoice page."""
     model = InvoiceItem
-    extra = 1  # Start with 1 empty row
+    extra = 5  # Show 5 empty rows by default (you can add more by clicking "Ajouter une autre ligne")
     min_num = 1  # Require at least 1 item
-    fields = ['order', 'description', 'quantity', 'unit_price', 'total_price_display']
+    fields = ['description', 'quantity', 'unit_price', 'total_price_display']
     readonly_fields = ['total_price_display']
-    ordering = ['order']
-    verbose_name = "Ligne de Facture"
-    verbose_name_plural = "📦 LIGNES DE FACTURE (Articles/Services)"
+    ordering = ['created_at']
+    verbose_name = "Article / Service"
+    verbose_name_plural = "📦 ARTICLES DE LA FACTURE (Cliquez 'Ajouter une autre ligne' pour plus)"
     
     def get_formset(self, request, obj=None, **kwargs):
         formset = super().get_formset(request, obj, **kwargs)
         # Add help text to fields
-        formset.form.base_fields['order'].help_text = "Ordre d'affichage (1, 2, 3...)"
-        formset.form.base_fields['description'].help_text = "Ex: Construction dalle béton, Peinture façade..."
-        formset.form.base_fields['quantity'].help_text = "Ex: 1, 2.5, 100..."
-        formset.form.base_fields['unit_price'].help_text = "Prix unitaire en FCFA"
+        formset.form.base_fields['description'].help_text = "Décrivez l'article ou le service (Ex: Construction dalle béton 50m²)"
+        formset.form.base_fields['quantity'].help_text = "Quantité (Ex: 1 pour forfait, 50 pour m², 100 pour sacs...)"
+        formset.form.base_fields['unit_price'].help_text = "Prix pour 1 unité en FCFA (Ex: 500000 pour un forfait, 10000 pour le m²)"
         return formset
     
-    @admin.display(description="Total")
+    @admin.display(description="Total Ligne")
     def total_price_display(self, obj):
         if obj.pk:  # Only show for saved items
             value = float(obj.total_price or 0)
-            return format_html('<strong>{:,.0f} FCFA</strong>', value)
-        return '-'
+            return format_html('<strong style="color: #2e7d32;">{:,.0f} FCFA</strong>', value)
+        return format_html('<span style="color: #999;">Calculé après sauvegarde</span>')
 
 
 @admin.register(Invoice)
@@ -43,7 +42,7 @@ class InvoiceAdmin(admin.ModelAdmin):
         'invoice_number', 'client_name', 'subject', 'status',
         'issue_date', 'due_date', 'display_total_ttc', 'display_net_to_pay', 'is_deleted'
     ]
-    list_filter = ['status', 'is_deleted', 'issue_date', 'payment_mode']
+    list_filter = ['status', 'tax_type', 'is_deleted', 'issue_date', 'payment_mode']
     search_fields = ['invoice_number', 'client_name', 'subject']
     date_hierarchy = 'issue_date'
     autocomplete_fields = ['project']
@@ -64,6 +63,7 @@ class InvoiceAdmin(admin.ModelAdmin):
         'status',
         'issue_date',
         'due_date',
+        'tax_type',
         'tax_percentage',
         'advance_payment',
         'payment_mode',
@@ -84,7 +84,13 @@ class InvoiceAdmin(admin.ModelAdmin):
             help_html = '''
             <div style="background: #e8f5e9; padding: 15px; border-left: 5px solid #4caf50; margin: 10px 0 20px 0;">
                 <h3 style="margin-top: 0; color: #2e7d32;">✅ Modification de facture</h3>
-                <p style="margin: 0;"><strong>Descendez en bas de page pour ajouter/modifier les lignes de facture (articles) ⬇️</strong></p>
+                <p style="margin: 10px 0;"><strong>Les articles de la facture sont en bas de page ⬇️</strong></p>
+                <ul style="margin: 0; line-height: 1.8;">
+                    <li>✏️ Modifiez les lignes existantes</li>
+                    <li>➕ Cliquez sur "Ajouter une autre ligne" pour plus d'articles</li>
+                    <li>❌ Cochez "Supprimer" pour retirer un article</li>
+                    <li>� Choisissez le type de taxe: ISB (-2%) ou TVA (+5%), ou saisissez un taux personnalisé</li>
+                </ul>
             </div>
             '''
         else:
@@ -93,13 +99,14 @@ class InvoiceAdmin(admin.ModelAdmin):
             <div style="background: #fff3e0; padding: 15px; border-left: 5px solid #ff9800; margin: 10px 0 20px 0;">
                 <h3 style="margin-top: 0; color: #e65100;">🆕 Nouvelle Facture - Étapes:</h3>
                 <ol style="line-height: 1.8; margin: 10px 0;">
-                    <li>Remplissez tous les champs ci-dessous</li>
+                    <li>Remplissez tous les champs ci-dessous (projet, dates, TVA...)</li>
                     <li>Cliquez sur <strong>"ENREGISTRER ET CONTINUER LA MODIFICATION"</strong></li>
-                    <li>La page se recharge → Les lignes de facture apparaissent en bas</li>
-                    <li>Ajoutez vos articles et sauvegardez</li>
+                    <li>La page se recharge → Les articles de facture apparaissent en bas</li>
+                    <li>5 lignes vides sont affichées (cliquez "Ajouter une autre ligne" pour plus)</li>
+                    <li>Remplissez les articles et sauvegardez</li>
                 </ol>
                 <p style="margin: 0; padding: 8px; background: #ffebee; border-left: 3px solid #f44336; font-weight: bold;">
-                    ⚠️ Les lignes de facture n'apparaissent qu'après la première sauvegarde!
+                    ⚠️ Les articles n'apparaissent qu'après la première sauvegarde!
                 </p>
             </div>
             '''

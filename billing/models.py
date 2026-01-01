@@ -33,6 +33,12 @@ class Invoice(BaseModel):
         TRANSFER = 'TRANSFER', 'Virement'
         CHECK = 'CHECK', 'Chèque'
     
+    class TaxType(models.TextChoices):
+        NONE = 'NONE', 'Aucune Taxe'
+        ISB = 'ISB', 'ISB (-2%)'
+        TVA = 'TVA', 'TVA (+5%)'
+        CUSTOM = 'CUSTOM', 'Taux Personnalisé'
+    
     # Relationship
     project = models.ForeignKey(
         'clients.ActiveProject',
@@ -77,12 +83,19 @@ class Invoice(BaseModel):
     )
     
     # Financial
+    tax_type = models.CharField(
+        max_length=20,
+        choices=TaxType.choices,
+        default=TaxType.NONE,
+        verbose_name="Type de Taxe",
+        help_text="Choisissez le type de taxe à appliquer"
+    )
     tax_percentage = models.DecimalField(
         max_digits=5,
         decimal_places=2,
         default=0,
-        verbose_name="5️⃣ TVA (%)",
-        help_text="Ex: 19 pour 19% de TVA (0 si pas de TVA)"
+        verbose_name="5️⃣ Taux de Taxe (%)",
+        help_text="Auto-rempli selon le type (ISB=-2, TVA=+5). Modifiable pour taux personnalisé"
     )
     advance_payment = models.DecimalField(
         max_digits=15,
@@ -181,6 +194,15 @@ class Invoice(BaseModel):
         # Auto-generate invoice number if not set
         if not self.invoice_number:
             self.invoice_number = self.generate_invoice_number()
+        
+        # Auto-set tax percentage based on tax type
+        if self.tax_type == self.TaxType.ISB:
+            self.tax_percentage = -2  # ISB is a deduction
+        elif self.tax_type == self.TaxType.TVA:
+            self.tax_percentage = 5  # TVA is an addition
+        elif self.tax_type == self.TaxType.NONE:
+            self.tax_percentage = 0
+        # If CUSTOM, keep the manually entered value
         
         # Auto-fill client snapshot if empty
         if not self.client_name and self.project_id:
