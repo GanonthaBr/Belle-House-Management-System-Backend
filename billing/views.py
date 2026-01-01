@@ -126,8 +126,13 @@ class AdminInvoiceViewSet(viewsets.ModelViewSet):
         
         invoice = self.get_object()
         
-        # Path to logo
-        logo_path = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'logo.png') if settings.STATICFILES_DIRS else os.path.join(settings.STATIC_ROOT, 'images', 'logo.png')
+        # Path to logo - use STATIC_ROOT in production, STATICFILES_DIRS in development
+        if hasattr(settings, 'STATIC_ROOT') and settings.STATIC_ROOT and os.path.exists(os.path.join(settings.STATIC_ROOT, 'images', 'logo.png')):
+            logo_path = os.path.join(settings.STATIC_ROOT, 'images', 'logo.png')
+        elif settings.STATICFILES_DIRS and os.path.exists(os.path.join(settings.STATICFILES_DIRS[0], 'images', 'logo.png')):
+            logo_path = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'logo.png')
+        else:
+            logo_path = None
         
         # Render HTML template
         html_string = render_to_string('billing/invoice_pdf.html', {

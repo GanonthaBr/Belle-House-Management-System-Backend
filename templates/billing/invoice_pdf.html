@@ -425,14 +425,18 @@
             </tr>
             <tr class="tax-row">
                 <td class="label-col">
-                    {% if invoice.tax_type == 'ISB' %}
-                        ISB ({{ invoice.tax_percentage }}%)
-                    {% elif invoice.tax_type == 'TVA' %}
-                        TVA ({{ invoice.tax_percentage }}%)
-                    {% elif invoice.tax_type == 'CUSTOM' %}
-                        Taxe ({{ invoice.tax_percentage }}%)
+                    {% if invoice.tax_amount != 0 %}
+                        {% if invoice.tax_type == 'ISB' %}
+                            ISB ({{ invoice.tax_percentage }}%)
+                        {% elif invoice.tax_type == 'TVA' %}
+                            TVA ({{ invoice.tax_percentage }}%)
+                        {% elif invoice.tax_type == 'CUSTOM' %}
+                            Taxe ({{ invoice.tax_percentage }}%)
+                        {% else %}
+                            Taxe ({{ invoice.tax_percentage }}%)
+                        {% endif %}
                     {% else %}
-                        Aucune Taxe
+                        Taxe (0%)
                     {% endif %}
                 </td>
                 <td class="amount-col">{{ invoice.tax_amount|floatformat:0 }} FCFA</td>
