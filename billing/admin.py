@@ -41,7 +41,7 @@ class InvoiceAdmin(admin.ModelAdmin):
     
     list_display = [
         'invoice_number', 'client_name', 'subject', 'status',
-        'issue_date', 'due_date', 'display_total_ttc', 'display_net_to_pay', 'is_deleted'
+        'issue_date', 'due_date', 'display_total_ttc', 'display_net_to_pay', 'download_pdf_button', 'is_deleted'
     ]
     list_filter = ['status', 'tax_type', 'is_deleted', 'issue_date', 'payment_mode']
     search_fields = ['invoice_number', 'client_name', 'subject']
@@ -50,56 +50,34 @@ class InvoiceAdmin(admin.ModelAdmin):
     list_editable = ['status']
     readonly_fields = [
         'invoice_number', 'display_subtotal', 'display_tax_amount',
-        'display_total_ttc', 'display_net_to_pay', 'display_help'
+        'display_total_ttc', 'display_net_to_pay', 'display_help', 'download_pdf_link'
     ]
     
     inlines = [InvoiceItemInline]
     
-    # Use fieldsets to control layout and prevent automatic tabbing
-    fieldsets = (
-        (None, {
-            'fields': ('display_help',),
-        }),
-        ('Informations de Base', {
-            'fields': (
-                'project',
-                'invoice_number',
-                'subject',
-                'status',
-                'issue_date',
-                'due_date',
-            ),
-        }),
-        ('Configuration des Taxes et Paiement', {
-            'fields': (
-                'tax_type',
-                'tax_percentage',
-                'advance_payment',
-                'payment_mode',
-            ),
-        }),
-        ('💰 Totaux Calculés Automatiquement', {
-            'fields': (
-                'display_subtotal',
-                'display_tax_amount',
-                'display_total_ttc',
-                'display_net_to_pay',
-            ),
-            'classes': ('collapse',),
-        }),
-        ('Informations Client (Auto-rempli)', {
-            'fields': (
-                'client_name',
-                'client_address',
-                'client_phone',
-            ),
-            'classes': ('collapse',),
-        }),
-        ('Notes', {
-            'fields': ('notes',),
-            'classes': ('collapse',),
-        }),
-    )
+    # Use fields list for truly vertical layout without tabs
+    fields = [
+        'display_help',
+        'download_pdf_link',
+        'project',
+        'invoice_number',
+        'subject',
+        'status',
+        'issue_date',
+        'due_date',
+        'tax_type',
+        'tax_percentage',
+        'advance_payment',
+        'payment_mode',
+        'display_subtotal',
+        'display_tax_amount',
+        'display_total_ttc',
+        'display_net_to_pay',
+        'client_name',
+        'client_address',
+        'client_phone',
+        'notes',
+    ]
     
     def display_help(self, obj):
         """Display help instructions at the top of the form."""
@@ -108,9 +86,9 @@ class InvoiceAdmin(admin.ModelAdmin):
             help_html = '''
             <div style="background: #e8f5e9; padding: 15px; border-left: 5px solid #4caf50; margin: 10px 0 20px 0;">
                 <h3 style="margin-top: 0; color: #2e7d32;">✅ Modification de facture</h3>
-                <p style="margin: 10px 0;"><strong>⬇️ Les articles sont EN BAS DE CETTE PAGE - DESCENDEZ ⬇️</strong></p>
+                
                 <ul style="margin: 0; line-height: 1.8;">
-                    <li>📜 Faites défiler vers le bas pour voir "📦 ARTICLES DE LA FACTURE"</li>
+                   
                     <li>✏️ Modifiez les lignes existantes directement</li>
                     <li>➕ Cliquez "Ajouter une autre ligne de facture" pour ajouter</li>
                     <li>❌ Cochez la case "Supprimer" à droite pour retirer une ligne</li>
@@ -186,6 +164,37 @@ class InvoiceAdmin(admin.ModelAdmin):
     @admin.action(description="Marquer comme en retard")
     def mark_as_overdue(self, request, queryset):
         queryset.update(status=Invoice.Status.OVERDUE)
+    
+    @admin.display(description="PDF")
+    def download_pdf_button(self, obj):
+        """Display download PDF button in list view."""
+        if obj.pk:
+            url = f'/api/admin/invoices/{obj.pk}/download-pdf/'
+            return format_html(
+                '<a class="button" href="{}" target="_blank" style="background-color:#61a1d6; color:white; padding:5px 10px; text-decoration:none; border-radius:3px;">📄 PDF</a>',
+                url
+            )
+        return '-'
+    
+    @admin.display(description="")
+    def download_pdf_link(self, obj):
+        """Display download PDF link in detail view."""
+        if obj.pk:
+            url = f'/api/admin/invoices/{obj.pk}/download-pdf/'
+            return format_html(
+                '<div style="background:#e8f5e9; padding:15px; border-left:5px solid #4caf50; margin:10px 0;">'
+                '<h3 style="margin-top:0; color:#2e7d32;">📄 Télécharger la Facture</h3>'
+                '<a href="{}" target="_blank" style="display:inline-block; background-color:#4caf50; color:white; padding:10px 20px; text-decoration:none; border-radius:5px; font-weight:bold;">'
+                '📥 Télécharger PDF'
+                '</a>'
+                '</div>',
+                url
+            )
+        return format_html(
+            '<div style="background:#fff3e0; padding:10px; border-left:5px solid #ff9800;">'
+            '<p style="margin:0;">💡 Le bouton de téléchargement PDF apparaîtra après la première sauvegarde.</p>'
+            '</div>'
+        )
 
 
 # Don't register InvoiceItem separately - it should only be managed via Invoice inline

@@ -5,11 +5,16 @@ Admin endpoints for invoice management.
 Client endpoints are in clients.views (MyInvoiceDetailView).
 """
 
+import os
+from django.conf import settings
+from django.http import HttpResponse
+from django.template.loader import render_to_string
 from rest_framework import viewsets, generics, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django_filters.rest_framework import DjangoFilterBackend
+# WeasyPrint import is lazy to avoid requiring GTK on Windows during startup
 from .models import Invoice, InvoiceItem
 from .serializers import (
     InvoiceListSerializer, InvoiceDetailSerializer, InvoiceWriteSerializer,
@@ -99,6 +104,45 @@ class AdminInvoiceViewSet(viewsets.ModelViewSet):
         instance.deleted_at = timezone.now()
         instance.deleted_by = self.request.user
         instance.save()
+    
+    @action(detail=True, methods=['get'], url_path='download-pdf')
+    def download_pdf(self, request, pk=None):
+        """
+        Download invoice as PDF.
+        
+        GET /api/admin/invoices/{id}/download-pdf/
+        """
+        try:
+            from weasyprint import HTML
+        except (ImportError, OSError) as e:
+            return Response(
+                {
+                    'error': 'PDF generation not available',
+                    'detail': 'WeasyPrint requires GTK3 libraries. On Windows, install from: https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer',
+                    'technical': str(e)
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        
+        invoice = self.get_object()
+        
+        # Path to logo
+        logo_path = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'logo.png') if settings.STATICFILES_DIRS else os.path.join(settings.STATIC_ROOT, 'images', 'logo.png')
+        
+        # Render HTML template
+        html_string = render_to_string('billing/invoice_pdf.html', {
+            'invoice': invoice,
+            'logo_path': logo_path,
+        })
+        
+        # Generate PDF
+        pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()
+        
+        # Create response
+        response = HttpResponse(pdf_file, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="Facture_{invoice.invoice_number.replace("/", "_")}.pdf"'
+        
+        return response
     
     @action(detail=True, methods=['post'])
     def mark_paid(self, request, pk=None):
