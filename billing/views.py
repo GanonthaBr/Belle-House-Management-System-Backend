@@ -126,18 +126,31 @@ class AdminInvoiceViewSet(viewsets.ModelViewSet):
         
         invoice = self.get_object()
         
-        # Path to logo - use STATIC_ROOT in production, STATICFILES_DIRS in development
-        if hasattr(settings, 'STATIC_ROOT') and settings.STATIC_ROOT and os.path.exists(os.path.join(settings.STATIC_ROOT, 'images', 'logo.png')):
-            logo_path = os.path.join(settings.STATIC_ROOT, 'images', 'logo.png')
-        elif settings.STATICFILES_DIRS and os.path.exists(os.path.join(settings.STATICFILES_DIRS[0], 'images', 'logo.png')):
-            logo_path = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'logo.png')
-        else:
-            logo_path = None
+        # Convert logo to base64 for reliable PDF rendering
+        import base64
+        logo_data_uri = None
+        
+        # Try to find and encode logo
+        logo_paths = []
+        if hasattr(settings, 'STATIC_ROOT') and settings.STATIC_ROOT:
+            logo_paths.append(os.path.join(settings.STATIC_ROOT, 'images', 'logo.png'))
+        if settings.STATICFILES_DIRS:
+            logo_paths.append(os.path.join(settings.STATICFILES_DIRS[0], 'images', 'logo.png'))
+        
+        for logo_path in logo_paths:
+            if os.path.exists(logo_path):
+                try:
+                    with open(logo_path, 'rb') as logo_file:
+                        logo_base64 = base64.b64encode(logo_file.read()).decode('utf-8')
+                        logo_data_uri = f'data:image/png;base64,{logo_base64}'
+                        break
+                except Exception:
+                    continue
         
         # Render HTML template
         html_string = render_to_string('billing/invoice_pdf.html', {
             'invoice': invoice,
-            'logo_path': logo_path,
+            'logo_data_uri': logo_data_uri,
         })
         
         # Generate PDF

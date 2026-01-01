@@ -345,8 +345,8 @@
             <table class="header-table">
                 <tr>
                     <td class="logo-section">
-                        {% if logo_path %}
-                            <img src="file://{{ logo_path }}" alt="Belle House Logo" />
+                        {% if logo_data_uri %}
+                            <img src="{{ logo_data_uri }}" alt="Belle House Logo" style="max-width: 140px; height: auto;" />
                         {% else %}
                             <div style="width: 140px; height: 100px; background: #4A90E2; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16pt;">BELLE<br>HOUSE</div>
                         {% endif %}
