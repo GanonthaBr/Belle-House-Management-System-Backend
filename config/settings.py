@@ -20,7 +20,7 @@ SECRET_KEY = config('SECRET_KEY', default='dev-secret-key-change-in-production')
 DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config(
     'ALLOWED_HOSTS',
-    default='localhost,127.0.0.1,api2.bellehouseniger.com,51.91.159.155',
+    default='localhost,127.0.0.1,api2.bellehouseniger.com,51.91.159.155,web',
     cast=Csv()
 )
 

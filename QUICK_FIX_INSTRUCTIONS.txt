@@ -1,0 +1,104 @@
+================================================================================
+QUICK FIX FOR UNHEALTHY WEB CONTAINER + DNS ISSUE
+================================================================================
+
+PROBLEM 1: DNS Points to Wrong IP
+----------------------------------
+Current: api2.bellehouseniger.com → 146.88.232.117 ❌
+Should be: api2.bellehouseniger.com → 51.91.159.155 ✓
+
+ACTION: Update DNS A record at your domain registrar to 51.91.159.155
+
+
+PROBLEM 2: Web Container Unhealthy (Health Check Failing)
+----------------------------------------------------------
+Django rejects 'localhost' requests because it's not in ALLOWED_HOSTS.
+
+SOLUTION: Deploy updated settings.py that includes 'localhost'
+
+
+================================================================================
+DEPLOYMENT STEPS (Run in PowerShell)
+================================================================================
+
+# 1. Commit and push the fix
+cd "C:\Users\bgano\Desktop\Belle House\system_de_gestion_belle_house_backend"
+git add config/settings.py
+git commit -m "Fix: Add localhost and web to ALLOWED_HOSTS for health check"
+git push origin main
+
+
+# 2. Deploy to VPS (via SSH)
+ssh ubuntu@51.91.159.155
+
+# Then run on VPS:
+cd /var/www/Belle-House-Management-System-Backend
+sudo git pull origin main
+sudo docker-compose up -d --build web
+sleep 30
+sudo docker ps
+
+# Verify web container is now healthy
+# STATUS should show "Up XX seconds (healthy)" instead of "(unhealthy)"
+
+
+# 3. If still issues, check .env file on VPS
+sudo nano .env
+
+# Make sure this line exists (add if missing):
+ALLOWED_HOSTS=localhost,127.0.0.1,api2.bellehouseniger.com,51.91.159.155,web
+
+# Save: Ctrl+O, Enter, Ctrl+X
+# Then restart:
+sudo docker-compose restart web
+
+
+================================================================================
+VERIFICATION
+================================================================================
+
+# Check container status
+sudo docker ps
+
+# Should see: bellehouse_web ... Up XX seconds (healthy) ✓
+
+# Check logs (should show no more DisallowedHost errors)
+sudo docker logs bellehouse_web --tail 20
+
+# Test locally on VPS
+curl http://localhost
+
+# Once DNS is fixed (wait 15-30 mins after updating DNS), test from Windows:
+curl.exe https://api2.bellehouseniger.com/admin/
+
+
+================================================================================
+DNS FIX (At Your Domain Registrar)
+================================================================================
+
+Login to your domain registrar and update:
+
+Type: A
+Host/Name: api2
+Value/Points to: 51.91.159.155
+TTL: 3600 (or Auto)
+
+Save and wait 15-30 minutes for propagation.
+
+Test DNS from Windows PowerShell:
+nslookup api2.bellehouseniger.com
+
+Should show: 51.91.159.155 (not 146.88.232.117)
+
+
+================================================================================
+COMPLETE CHECKLIST
+================================================================================
+
+[ ] Push code fix to GitHub
+[ ] Pull on VPS and rebuild web container
+[ ] Verify web container shows (healthy)
+[ ] Update DNS A record to 51.91.159.155
+[ ] Wait for DNS propagation (15-30 mins)
+[ ] Verify nslookup shows correct IP
+[ ] Test website loads at https://api2.bellehouseniger.com
