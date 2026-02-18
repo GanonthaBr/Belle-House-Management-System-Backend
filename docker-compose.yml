@@ -23,7 +23,7 @@ services:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
     healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000')"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/admin/", "||", "exit", "1"]
       interval: 30s
       timeout: 10s
       retries: 5
