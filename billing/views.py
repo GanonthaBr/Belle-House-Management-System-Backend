@@ -108,9 +108,11 @@ class AdminInvoiceViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'], url_path='download-pdf')
     def download_pdf(self, request, pk=None):
         """
-        Download invoice as PDF.
+        Download invoice as PDF using WeasyPrint (industry standard).
         
         GET /api/admin/invoices/{id}/download-pdf/
+        
+        Uses base64 encoding for images for maximum reliability across environments.
         """
         try:
             from weasyprint import HTML
@@ -126,23 +128,29 @@ class AdminInvoiceViewSet(viewsets.ModelViewSet):
         
         invoice = self.get_object()
         
-        # Get logo file path - use absolute file path for WeasyPrint
+        # Get logo as base64 (industry standard for embedded images in PDFs)
+        import base64
         logo_path = os.path.join(settings.STATIC_ROOT or settings.BASE_DIR / 'staticfiles', 'images', 'logo.png')
         
-        # Convert to file:// URL for WeasyPrint
-        import pathlib
-        logo_url = pathlib.Path(logo_path).as_uri()
+        logo_base64 = None
+        if os.path.exists(logo_path):
+            try:
+                with open(logo_path, 'rb') as logo_file:
+                    logo_data = logo_file.read()
+                    logo_base64 = base64.b64encode(logo_data).decode('utf-8')
+            except Exception as e:
+                print(f"Error reading logo: {e}")
         
         # Render HTML template
         html_string = render_to_string('billing/invoice_pdf.html', {
             'invoice': invoice,
-            'logo_url': logo_url,
+            'logo_base64': logo_base64,
         })
         
-        # Generate PDF with base_url so it can fetch the logo
-        pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()
+        # Generate PDF using WeasyPrint
+        pdf_file = HTML(string=html_string).write_pdf()
         
-        # Create response
+        # Create response with proper HTTP headers
         response = HttpResponse(pdf_file, content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="Facture_{invoice.invoice_number.replace("/", "_")}.pdf"'
         

@@ -345,7 +345,11 @@
             <table class="header-table">
                 <tr>
                     <td class="logo-section">
-                        <img src="{{ logo_url }}" alt="Belle House Logo" style="max-width: 140px; height: auto;" />
+                        {% if logo_base64 %}
+                        <img src="data:image/png;base64,{{ logo_base64 }}" alt="Belle House Logo" style="max-width: 140px; height: auto;" />
+                        {% else %}
+                        <div style="max-width: 140px; height: 60px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999;">Logo</div>
+                        {% endif %}
                     </td>
                     <td class="company-info">
                         <div class="company-name">BELLE HOUSE</div>
