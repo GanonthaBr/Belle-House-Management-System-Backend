@@ -35,6 +35,7 @@ class InvoiceListSerializer(serializers.ModelSerializer):
     """Serializer for invoice list view (lightweight)."""
     
     status_display = serializers.CharField(source='get_status_display', read_only=True)
+    invoice_type_display = serializers.CharField(source='get_invoice_type_display', read_only=True)
     payment_mode_display = serializers.CharField(source='get_payment_mode_display', read_only=True)
     total_ttc = serializers.DecimalField(max_digits=15, decimal_places=2, read_only=True)
     net_to_pay = serializers.DecimalField(max_digits=15, decimal_places=2, read_only=True)
@@ -43,7 +44,7 @@ class InvoiceListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = [
-            'id', 'invoice_number', 'subject', 'status', 'status_display',
+            'id', 'invoice_number', 'invoice_type', 'invoice_type_display', 'subject', 'status', 'status_display',
             'issue_date', 'due_date', 'total_ttc', 'net_to_pay',
             'payment_mode', 'payment_mode_display',
             'project', 'project_name', 'client_name'
@@ -54,6 +55,7 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
     """Serializer for invoice detail view (full data with items)."""
     
     status_display = serializers.CharField(source='get_status_display', read_only=True)
+    invoice_type_display = serializers.CharField(source='get_invoice_type_display', read_only=True)
     payment_mode_display = serializers.CharField(source='get_payment_mode_display', read_only=True)
     items = InvoiceItemSerializer(many=True, read_only=True)
     
@@ -68,7 +70,7 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = [
-            'id', 'invoice_number', 'subject', 'status', 'status_display',
+            'id', 'invoice_number', 'invoice_type', 'invoice_type_display', 'subject', 'status', 'status_display',
             'issue_date', 'due_date',
             'tax_percentage', 'advance_payment',
             'payment_mode', 'payment_mode_display',
@@ -93,7 +95,7 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = [
-            'project', 'subject', 'status',
+            'project', 'invoice_type', 'subject', 'status',
             'issue_date', 'due_date',
             'tax_percentage', 'advance_payment', 'payment_mode',
             'client_name', 'client_address', 'client_phone',

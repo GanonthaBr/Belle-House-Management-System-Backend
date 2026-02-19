@@ -40,7 +40,7 @@ class InvoiceAdmin(admin.ModelAdmin):
     """Admin for Invoices with computed totals display."""
     
     list_display = [
-        'invoice_number', 'client_name', 'subject', 'status',
+        'invoice_number', 'invoice_type', 'client_name', 'subject', 'status',
         'issue_date', 'due_date', 'display_total_ttc', 'display_net_to_pay', 'download_pdf_button', 'is_deleted'
     ]
     list_filter = ['status', 'tax_type', 'is_deleted', 'issue_date', 'payment_mode']
@@ -61,6 +61,7 @@ class InvoiceAdmin(admin.ModelAdmin):
         'download_pdf_link',
         'project',
         'invoice_number',
+        'invoice_type',
         'subject',
         'status',
         'issue_date',

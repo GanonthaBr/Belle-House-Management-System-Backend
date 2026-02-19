@@ -100,7 +100,6 @@
     
     .client-box {
         background: #F8F9FA;
-        border-left: 4px solid #4A90E2;
         padding: 12px;
         width: 33%;
     }
@@ -142,7 +141,6 @@
     
     .invoice-number-box {
         background: #F8F9FA;
-        border-right: 4px solid #4A90E2;
         padding: 12px;
         text-align: right;
         width: 33%;
@@ -376,7 +374,7 @@
                     <div>{{ invoice.project.client.user.email }}</div>
                 </td>
                 <td class="invoice-type-box">
-                    <div class="invoice-type">Facture Proforma</div>
+                    <div class="invoice-type">{{ invoice.get_invoice_type_display }}</div>
                 </td>
                 <td class="invoice-number-box">
                     <div class="invoice-number">Numéro : {{ invoice.invoice_number }}</div>

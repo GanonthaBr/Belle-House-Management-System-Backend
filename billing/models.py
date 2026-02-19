@@ -39,6 +39,11 @@ class Invoice(BaseModel):
         TVA = 'TVA', 'TVA (+5%)'
         CUSTOM = 'CUSTOM', 'Taux Personnalisé'
     
+    class InvoiceType(models.TextChoices):
+        PROFORMA = 'PROFORMA', 'Facture Proforma'
+        QUOTE = 'QUOTE', 'Devis'
+        INVOICE = 'INVOICE', 'Facture'
+    
     # Relationship
     project = models.ForeignKey(
         'clients.ActiveProject',
@@ -58,9 +63,16 @@ class Invoice(BaseModel):
     )
     
     # Invoice Details
+    invoice_type = models.CharField(
+        max_length=20,
+        choices=InvoiceType.choices,
+        default=InvoiceType.PROFORMA,
+        verbose_name="2️⃣ Type de Document",
+        help_text="Sélectionnez le type de document"
+    )
     subject = models.CharField(
         max_length=255,
-        verbose_name="2️⃣ Objet de la Facture",
+        verbose_name="3️⃣ Objet de la Facture",
         help_text="Ex: Construction villa, Plan et suivi, Travaux de finition..."
     )
     status = models.CharField(
@@ -74,11 +86,11 @@ class Invoice(BaseModel):
     # Dates
     issue_date = models.DateField(
         default=timezone.now,
-        verbose_name="3️⃣ Date d'Émission",
+        verbose_name="4️⃣ Date d'Émission",
         help_text="Date de création de la facture"
     )
     due_date = models.DateField(
-        verbose_name="4️⃣ Date d'Échéance",
+        verbose_name="5️⃣ Date d'Échéance",
         help_text="Date limite de paiement"
     )
     
@@ -94,7 +106,7 @@ class Invoice(BaseModel):
         max_digits=5,
         decimal_places=2,
         default=0,
-        verbose_name="5️⃣ Taux de Taxe (%)",
+        verbose_name="6️⃣ Taux de Taxe (%)",
         help_text="Auto-rempli selon le type (ISB=-2, TVA=+5). Modifiable pour taux personnalisé"
     )
     advance_payment = models.DecimalField(
