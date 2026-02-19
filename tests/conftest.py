@@ -120,7 +120,7 @@ def sample_project(db, client_profile, admin_user):
         project_name='Test Villa Project',
         description='A test construction project',
         location='Plateau, Niamey',
-        current_phase='FONDATION',
+        current_phase='FONDATIONS',
         progress_percentage=25,
         total_quote=50000000,
         start_date=timezone.now().date(),

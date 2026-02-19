@@ -173,7 +173,7 @@ class TestAdminProjects:
             'project_name': 'New Villa Project',
             'description': 'A new construction project',
             'location': 'Niamey',
-            'current_phase': 'FONDATION',
+            'current_phase': 'FONDATIONS',
             'start_date': timezone.now().date().isoformat(),
             'estimated_completion': (timezone.now().date() + timedelta(days=180)).isoformat()
         }
@@ -190,4 +190,4 @@ class TestAdminProjects:
         
         # Refresh and check phase advanced
         sample_project.refresh_from_db()
-        assert sample_project.current_phase == 'ELEVATION'
+        assert sample_project.current_phase == 'ELEVATION_MURS'
