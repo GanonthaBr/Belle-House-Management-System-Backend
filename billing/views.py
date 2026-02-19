@@ -126,9 +126,12 @@ class AdminInvoiceViewSet(viewsets.ModelViewSet):
         
         invoice = self.get_object()
         
-        # Get logo URL using static URL
-        from django.templatetags.static import static
-        logo_url = request.build_absolute_uri(static('images/logo.png'))
+        # Get logo file path - use absolute file path for WeasyPrint
+        logo_path = os.path.join(settings.STATIC_ROOT or settings.BASE_DIR / 'staticfiles', 'images', 'logo.png')
+        
+        # Convert to file:// URL for WeasyPrint
+        import pathlib
+        logo_url = pathlib.Path(logo_path).as_uri()
         
         # Render HTML template
         html_string = render_to_string('billing/invoice_pdf.html', {
